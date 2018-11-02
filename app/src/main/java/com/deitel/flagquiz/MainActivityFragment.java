@@ -39,12 +39,14 @@ public class MainActivityFragment extends Fragment {
    // String used when logging error messages
    private static final String TAG = "FlagQuiz Activity";
 
-   private static final int FLAGS_IN_QUIZ = 10;
+   private static final int FLAGS_IN_QUIZ = 3;
 
    private List<String> fileNameList; // flag file names
    private List<String> quizCountriesList; // countries in current quiz
    private Set<String> regionsSet; // world regions in current quiz
    private String correctAnswer; // correct country for the current flag
+   private int firsttry; // number of correct answers on first try
+   private Boolean first;
    private int totalGuesses; // number of guesses made
    private int correctAnswers; // number of correct guesses
    private int guessRows; // number of rows displaying guess Buttons
@@ -151,6 +153,8 @@ public class MainActivityFragment extends Fragment {
 
       correctAnswers = 0; // reset the number of correct answers made
       totalGuesses = 0; // reset the total number of guesses the user made
+      firsttry = 0;
+      first = true;
       quizCountriesList.clear(); // clear prior list of quiz countries
 
       int flagCounter = 1;
@@ -175,6 +179,7 @@ public class MainActivityFragment extends Fragment {
 
    // after the user guesses a correct flag, load the next flag
    private void loadNextFlag() {
+      first = true;
       // get file name of the next flag and remove it from the list
       String nextImage = quizCountriesList.remove(0);
       correctAnswer = nextImage; // update the correct answer
@@ -293,6 +298,8 @@ public class MainActivityFragment extends Fragment {
 
          if (guess.equals(answer)) { // if the guess is correct
             ++correctAnswers; // increment the number of correct answers
+            if(first)
+               firsttry++;
 
             // display correct answer in green text
             answerTextView.setText(answer + "!");
@@ -312,7 +319,7 @@ public class MainActivityFragment extends Fragment {
                      public Dialog onCreateDialog(Bundle bundle) {
                         AlertDialog.Builder builder =
                            new AlertDialog.Builder(getActivity());
-                        builder.setMessage(
+                        builder.setMessage(firsttry + " Answered on first try. " +
                            getString(R.string.results,
                               totalGuesses,
                               (1000 / (double) totalGuesses)));
@@ -348,6 +355,7 @@ public class MainActivityFragment extends Fragment {
          }
          else { // answer was incorrect
             flagImageView.startAnimation(shakeAnimation); // play shake
+            first = false;
 
             // display "Incorrect!" in red
             answerTextView.setText(R.string.incorrect_answer);
